@@ -50,7 +50,7 @@ from cs336_data.modal_utils import MODAL_SECRETS, VOLUME_MOUNTS, app, build_imag
 logger = logging.getLogger(__name__)
 N_GPUS = 8
 DEFAULT_MODAL_VALID_BIN = "/shared-data/tokenized_paloma_c4_100_domains_validation.bin"
-DEFAULT_MODAL_MODEL_OUTPUT = "/root/data/output/your_data"
+DEFAULT_MODAL_MODEL_OUTPUT = ""
 LOCAL_DATA_DIR = Path("/tmp/data")
 EPHEMERAL_DISK_MB = 52_4288
 
@@ -345,14 +345,13 @@ def run_modal_worker() -> None:
         )
     )
 
-
 @app.function(
     image=build_image(),
     volumes=VOLUME_MOUNTS,
     secrets=MODAL_SECRETS,
     gpu=f"B200:{N_GPUS}",
     timeout=60 * 60 * 12,
-    ephemeral_disk=EPHEMERAL_DISK_MB,
+    ephemeral_disk=EPHEMERAL_DISK_MB
 )
 def run_modal_training(
     train_bin: str,

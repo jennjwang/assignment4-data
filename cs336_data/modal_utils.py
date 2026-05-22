@@ -4,7 +4,7 @@ import modal
 
 from cs336_data.common import MODAL_SHARED_PATH
 
-SUNET_ID = "TODO"  # NOTE: modal_utils.py should remain effectively unchanged other than adding your SUNET_ID
+SUNET_ID = "jwang400"  # NOTE: modal_utils.py should remain effectively unchanged other than adding your SUNET_ID
 if SUNET_ID == "TODO":
     raise ValueError("Please set SUNET_ID in cs336_data/modal_utils.py before running Modal jobs.")
 
@@ -20,8 +20,13 @@ shared_data_volume = modal.Volume.from_name(
 def build_image(*, include_tests: bool = False) -> modal.Image:
     image = modal.Image.debian_slim(python_version="3.12")
     image = image.uv_sync()
+    image = image.run_commands(
+        'python -c "import nltk; nltk.download(\'punkt_tab\')"',
+    )
+    
     image = image.add_local_python_source("cs336_basics")
     image = image.add_local_python_source("cs336_data")
+    image = image.add_local_file("cs336_data/domains.txt", "/root/cs336_data/domains.txt")
     image = image.add_local_file("AGENTS.md", "/root/AGENTS.md")
     image = image.add_local_file("CLAUDE.md", "/root/CLAUDE.md")
     if include_tests:
@@ -34,4 +39,4 @@ VOLUME_MOUNTS: dict[str | PurePosixPath, modal.Volume | modal.CloudBucketMount] 
     str(MODAL_SHARED_PATH): shared_data_volume.read_only(),
 }
 
-MODAL_SECRETS = []
+MODAL_SECRETS = [modal.Secret.from_name("wandb")]
